@@ -1,7 +1,7 @@
 import socket
 import os
 
-host = ''
+host = '127.0.0.1'
 port = 8080
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -11,11 +11,7 @@ server.listen(1)
 
 print('Starting server on', host, port)
 
-
-
-
-while 1:
-    
+while 1:   
 
     csock, caddr = server.accept()
         
