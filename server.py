@@ -3,9 +3,11 @@ from threading import Thread
 import os
 
 
+
 def handle_client(client):
     req = client.recv(1024).decode('utf-8')
     
+
     if (len(req) == 0):
         csock.close()
 
