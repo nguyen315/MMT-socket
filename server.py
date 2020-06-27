@@ -1,26 +1,17 @@
 import socket
+from threading import Thread
 import os
 
-host = '127.0.0.1'
-port = 8080
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-server.bind((host, port))
-server.listen(1)
-
-print('Starting server on', host, port)
-
-while 1:   
-
-    csock, caddr = server.accept()
-        
-    req = csock.recv(1024).decode('utf-8')
-
-    print(req)
+def handle_client(client):
+    req = client.recv(1024).decode('utf-8')
+    
 
     if (len(req) == 0):
         csock.close()
+
+        
     else:
 
         string_list = req.split('\r\n\r\n')     # Cắt request để xử lý
@@ -36,11 +27,11 @@ while 1:
         # Xử lý các request tương ứng
 
         if method == 'GET':
-            if myfile == '/':
+            if myfile == '/' or myfile == "/index.html":
                 myfile = 'index.html'
             elif myfile == '/info.html':
                 myfile = 'info.html'
-            else:
+            elif myfile == '/styles.css':
                 myfile = 'styles.css'
 
             file = open(myfile, 'rb')
@@ -81,17 +72,44 @@ while 1:
 
                 header = 'HTTP/1.1 404 Not Found\n'
                
-                if(myfile.endswith(".css")):
-                    mimetype = 'text/css'
-                else:
-                    mimetype = 'text/html'
+                mimetype = 'text/html'
 
-                header += 'Content-Type: '+str(mimetype)+'\n\n'
+                header += 'Content-Type: ' + str(mimetype) + '\n\n'
 
 
         final_response = header.encode('utf-8')
         final_response += response
-        csock.send(final_response)
+        client.send(final_response)
         #print(final_response)
-        csock.close()
+        client.close()
 
+threads = []
+
+host = ''
+port = 8080
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+server.bind((host, port))
+server.listen(5)
+
+print('Starting server on', host, port)
+
+
+
+while 1:
+    
+    
+
+    csock, caddr = server.accept()
+
+    newThread = Thread(target=handle_client, args=(csock,))
+
+    newThread.start()
+    threads.append(newThread)
+    
+
+    
+for t in threads: 
+    t.join()
+    
