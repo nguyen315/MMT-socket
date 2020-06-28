@@ -7,6 +7,7 @@ import os
 def handle_client(client):
     req = client.recv(1024).decode('utf-8')
     
+    print(req)
 
     if (len(req) == 0):
         csock.close()
@@ -27,12 +28,17 @@ def handle_client(client):
         # Xử lý các request tương ứng
 
         if method == 'GET':
+            
             if myfile == '/' or myfile == "/index.html":
                 myfile = 'index.html'
             elif myfile == '/info.html':
                 myfile = 'info.html'
-            elif myfile == '/styles.css':
-                myfile = 'styles.css'
+            elif myfile == '/style1.css':
+                myfile = 'style1.css'
+            elif myfile == '/style2.css':
+                myfile = 'style2.css'
+            elif myfile == '/image/1.jpg':
+                myfile = 'image/1.jpg'
 
             file = open(myfile, 'rb')
             response = file.read()
