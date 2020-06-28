@@ -1,63 +1,53 @@
 import socket
 from threading import Thread
-import os
-
 
 
 def handle_client(client):
     req = client.recv(1024).decode('utf-8')
-    
+
     print(req)
 
-    if (len(req) == 0):
+    if len(req) == 0:
         csock.close()
 
-        
     else:
+        string_list = req.split('\r\n\r\n')  # Cắt request để xử lý
 
-        string_list = req.split('\r\n\r\n')     # Cắt request để xử lý
+        first_line = string_list[0].split(' ')
+        method = first_line[0]
+        requesting_file = first_line[1]
 
-        firstLine = string_list[0].split(' ')
-        method = firstLine[0]  
-        requesting_file = firstLine[1]  
-
-
-        myfile = requesting_file
-
+        my_file = requesting_file
 
         # Xử lý các request tương ứng
-
         if method == 'GET':
-            
-            if myfile == '/' or myfile == "/index.html":
-                myfile = 'index.html'
-            elif myfile == '/info.html':
-                myfile = 'info.html'
-            elif myfile == '/style1.css':
-                myfile = 'style1.css'
-            elif myfile == '/style2.css':
-                myfile = 'style2.css'
-            elif myfile == '/image/1.jpg':
-                myfile = 'image/1.jpg'
 
-            file = open(myfile, 'rb')
+            my_file = my_file.split("/")
+
+            if my_file[1] == '':
+                my_file = "index.html"
+            elif my_file[1] == "image":
+                my_file = my_file[1] + "/" + my_file[2]
+            else:
+                my_file = my_file[1]
+
+            file = open(my_file, 'rb')
             response = file.read()
             file.close()
 
             header = 'HTTP/1.1 200 OK\n'
 
-            if(myfile.endswith(".jpg")):
+            if my_file.endswith(".jpg"):
                 mimetype = 'image/jpg'
-            elif(myfile.endswith(".css")):
+            elif my_file.endswith(".css"):
                 mimetype = 'text/css'
             else:
                 mimetype = 'text/html'
 
-            header += 'Content-Type: '+str(mimetype)+'\n\n'
+            header += 'Content-Type: ' + str(mimetype) + '\n\n'
 
-                
         # method = POST
-        else :
+        else:
 
             data = string_list[1]
 
@@ -65,29 +55,31 @@ def handle_client(client):
             uname = uname.split('=')[1]
             password = password.split('=')[1]
 
-            if (uname == 'admin' and password == 'admin'):
+            if uname == 'admin' and password == 'admin':
                 header = '''HTTP/1.1 301 Moved Permanently\nLocation: /info.html\n\n'''
                 response = "".encode('utf-8')
-            
+
             else:
 
-                myfile = '404.html'
-                file = open(myfile, 'rb')
+                my_file = '404.html'
+                file = open(my_file, 'rb')
                 response = file.read()
                 file.close()
 
                 header = 'HTTP/1.1 404 Not Found\n'
-               
+
                 mimetype = 'text/html'
 
                 header += 'Content-Type: ' + str(mimetype) + '\n\n'
 
-
         final_response = header.encode('utf-8')
         final_response += response
         client.send(final_response)
-        #print(final_response)
+
+        # print(final_response)
+
         client.close()
+
 
 threads = []
 
@@ -101,21 +93,12 @@ server.listen(5)
 
 print('Starting server on', host, port)
 
-
-
-while 1:
-    
-    
-
+while True:
     csock, caddr = server.accept()
 
     newThread = Thread(target=handle_client, args=(csock,))
 
     newThread.start()
+    newThread.join()
     threads.append(newThread)
-    
 
-    
-for t in threads: 
-    t.join()
-    
