@@ -13,9 +13,9 @@ def handle_client(client):
     else:
         string_list = req.split('\r\n\r\n')  # Cắt request để xử lý
 
-        first_line = string_list[0].split(' ')
-        method = first_line[0]
-        requesting_file = first_line[1]
+        header_part = string_list[0].split(' ')
+        method = header_part[0]
+        requesting_file = header_part[1]
 
         my_file = requesting_file
 
@@ -31,20 +31,28 @@ def handle_client(client):
             else:
                 my_file = my_file[1]
 
-            file = open(my_file, 'rb')
-            response = file.read()
-            file.close()
 
-            header = 'HTTP/1.1 200 OK\n'
+            try:
+                file = open(my_file, 'rb')
+                response = file.read()
+                file.close()
 
-            if my_file.endswith(".jpg"):
-                mimetype = 'image/jpg'
-            elif my_file.endswith(".css"):
-                mimetype = 'text/css'
-            else:
-                mimetype = 'text/html'
+                header = 'HTTP/1.1 200 OK\n'
 
-            header += 'Content-Type: ' + str(mimetype) + '\n\n'
+                if my_file.endswith(".jpg"):
+                    mimetype = 'image/jpg'
+                elif my_file.endswith(".css"):
+                    mimetype = 'text/css'
+                else:
+                    mimetype = 'text/html'
+
+                header += 'Content-Type: ' + str(mimetype) + '\n\n'
+
+
+            except:
+                header = '''HTTP/1.1 301 Moved Permanently\nLocation: /index.html\n\n'''
+                response = "".encode('utf-8')
+
 
         # method = POST
         else:
