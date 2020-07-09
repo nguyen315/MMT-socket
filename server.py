@@ -8,7 +8,7 @@ def handle_client(client):
     print(req)
 
     if len(req) == 0:
-        csock.close()
+        client.close()
 
     else:
         string_list = req.split('\r\n\r\n')  # Cắt request để xử lý
