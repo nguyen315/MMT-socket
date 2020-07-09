@@ -31,7 +31,6 @@ def handle_client(client):
             else:
                 my_file = my_file[1]
 
-
             try:
                 file = open(my_file, 'rb')
                 response = file.read()
@@ -50,8 +49,16 @@ def handle_client(client):
 
 
             except:
-                header = '''HTTP/1.1 301 Moved Permanently\nLocation: /index.html\n\n'''
-                response = "".encode('utf-8')
+                my_file = '404.html'
+                file = open(my_file, 'rb')
+                response = file.read()
+                file.close()
+
+                header = 'HTTP/1.1 404 Not Found\n'
+
+                mimetype = 'text/html'
+
+                header += 'Content-Type: ' + str(mimetype) + '\n\n'
 
 
         # method = POST
